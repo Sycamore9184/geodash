@@ -1,7 +1,14 @@
-import geometry_dashworld as game
+from geometry_dashworld import Game
 
 
 def main():
+    game = Game(
+        configuration={
+            "debug": True,
+            "dimensions": {"width": 120, "height": 50},
+        }
+    )
+
     game.create_world()
 
     while True:
