@@ -102,16 +102,17 @@ class Game:
         self.world["entities"].append(new_post)
 
     # Overwrite the world map with the body of the entity at the given coordinates
-    def render_entity(self, x: int, y: int, entity: list[str]):
-        for i in range(len(entity)):
-            for j in range(len(entity[i])):
+    def render_entity(self, x: int, y: int, body: list[str]):
+        for i in range(len(body)):
+            for j in range(len(body[i])):
                 if (
-                    y - i >= 0
-                    and y - i < self.dimensions["height"]
-                    and x + j >= 0
+                    # Check if the entity is within the bounds of the world
+                    y - i < self.dimensions["height"]
                     and x + j < self.dimensions["width"]
+                    # Ignore the entity background tiles
+                    and body[i][j] != "4"
                 ):
-                    self.world["map"][y - i][x + j] = entity[i][j]
+                    self.world["map"][y - i][x + j] = body[i][j]
 
     # Call render_entity for each entity in the entity list
     def render_entities(self):
