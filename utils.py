@@ -26,31 +26,36 @@ def determine_collision(entity1, entity2):
 
 
 def is_too_close(new_entity, existing_entities, min_distance):
-    for enemy in existing_entities:
-        if determine_collision(new_entity, enemy):
+    for entity in existing_entities:
+        if determine_collision(new_entity, entity):
             return True
 
-        dx = new_entity["x"] - enemy["x"]
-        dy = new_entity["y"] - enemy["y"]
+        dx = new_entity["x"] - entity["x"]
+        dy = new_entity["y"] - entity["y"]
 
         distance = ((dx) ** 2 + (dy) ** 2) ** 0.5
 
-
         if distance < min_distance:
-            print(f"Entity {new_entity["name"]}(x: {new_entity["x"]}, y: {new_entity["y"]}) is too close to {enemy["name"]}(x: {enemy["x"]}, y: {enemy["y"]})", flush=True)
+            print(
+                f"Entity {new_entity['name']}(x: {new_entity['x']}, y: {new_entity['y']}) is too close to {entity['name']}(x: {entity['x']}, y: {entity['y']})",
+                flush=True,
+            )
             return True
 
     return False
 
 
-def generate_entity_position(new_entity, existing_entities, world_width, world_height, min_distance=15):
+def generate_entity_position(
+    new_entity, existing_entities, world_width, world_height, min_distance=15
+):
     while True:
-        new_entity["x"] = random.randint(
-            min_distance, world_width - min_distance
-        )
+        new_entity["x"] = random.randint(min_distance, world_width - min_distance)
         new_entity["y"] = world_height - 7
 
-        print(f"Trying to place entity {new_entity["name"]} at ({new_entity['x']}, {new_entity['y']})", flush=True)
+        print(
+            f"Trying to place entity {new_entity['name']} at ({new_entity['x']}, {new_entity['y']})",
+            flush=True,
+        )
 
         if not is_too_close(new_entity, existing_entities, min_distance):
             return new_entity

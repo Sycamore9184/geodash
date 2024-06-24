@@ -1,4 +1,5 @@
 player = {
+    "id": 0,
     "name": "player",
     "type": "player",
     "x": 0,
@@ -24,6 +25,7 @@ player = {
 }
 
 spike = {
+    "id": 0,
     "name": "spike",
     "type": "enemy",
     "x": 0,
@@ -49,6 +51,7 @@ spike = {
 }
 
 post = {
+    "id": 0,
     "name": "post",
     "type": "goal",
     "x": 0,
