@@ -6,23 +6,16 @@ import os
 
 init(autoreset=True)
 
+default_config = {
+    "debug": False,
+    "dimensions": {"width": 120, "height": 50},
+}
+
 
 class Game:
-    def __init__(
-        self,
-        configuration: dict = {
-            "debug": True,
-            "dimensions": {"width": 120, "height": 50},
-        },
-    ):
-        self.game_state = {
-            "over": False,
-            "entities": 0,
-            "died_to": 0,  # Entity ID
-            # Can add more states here, such as total score, etc.
-        }
-        self.debug = configuration["debug"]
-        self.dimensions = configuration["dimensions"]
+    def __init__(self, config=default_config):
+        self.dimensions = config["dimensions"]
+        self.debug = config["debug"]
         self.entities = {
             "player": player,
             "spike": spike,
@@ -32,19 +25,31 @@ class Game:
             "map": [],
             "entities": [],
         }
+        # States such as total score, etc.
+        self.player_state = {
+            "dead": False,
+            "died_to": 0,
+            "is_jumping": False,
+            "last_direction": "d",
+        }
+
+    def is_over(self):
+        return self.player_state["dead"]
 
     def get_entity_count(self):
         return len(self.world["entities"])
 
     # Return the player entity
-    # The player entity is always the first entity in the list
+    # If the player entity is not found within the entity list, return the default player entity
     def get_player(self):
-        return self.world["entities"][0]
+        player_entity = filter(lambda e: e["type"] == "player", self.world["entities"])
+
+        return next(player_entity, player)
 
     # Return the entity with the given ID
     # If the entity is not found, return a default entity
     def get_entity(self, entity_id: int):
-        entity = filter(lambda x: x["id"] == entity_id, self.world["entities"])
+        entity = filter(lambda e: e["id"] == entity_id, self.world["entities"])
 
         return next(entity, {"id": -1, "name": "none"})
 
@@ -62,7 +67,7 @@ class Game:
 
         self.generate_player()
 
-        for _ in range(2):
+        for _ in range(1):
             self.generate_enemy()
             self.generate_post()
 
@@ -169,10 +174,12 @@ class Game:
 
         self.log(f"Entity count: {self.get_entity_count()}")
 
-        if self.game_state["over"]:
-            entity = self.get_entity(self.game_state["died_to"])
+        if self.player_state["dead"]:
+            entity = self.get_entity(self.player_state["died_to"])
 
             self.log(f"Game over! You died to [{entity['id']}:{entity['name']}]")
+
+        self.log(f"Player state: {self.player_state}")
 
     # Move the player entity based on the user input
     # This function also checks for collisions with the enemy entities
@@ -181,25 +188,36 @@ class Game:
         userinput = option.split(" ")
         player = self.get_player()
 
+        if self.player_state["is_jumping"]:
+            player["y"] += 17
+            self.player_state["is_jumping"] = False
+
         # Since we're calling .split(" ") on the input, we can have multiple inputs
         # separated by a space. This allows for multiple key presses in one frame
-        for i in range(len(userinput)):
-            key = userinput[i]
-
+        for key in userinput:
             if key == "left" or key == "a" and player["x"] > 1:
                 player["x"] -= 16
             elif (
                 key == "right"
                 or key == "d"
-                and player["x"] < self.dimensions["width"] - 30
+                and player["x"] < self.dimensions["width"] - len(player["body"][0]) * 2
             ):
                 player["x"] += 16
-            # Jumping is a bit more complex, if we later on decide to render each frame
-            # we might have to change this logic, along with the rendering logic
-            elif key == "up" or key == "w" and player["y"] > 30:
+            elif key == "up" or key == "w" and player["y"] > len(player["body"][0]) * 2:
+                self.player_state["is_jumping"] = True
+                # Jump and move towards the last direction
+                if (
+                    self.player_state["last_direction"] == "d"
+                    or self.player_state["last_direction"] == "right"
+                ):
+                    player["x"] += 16
+                else:
+                    player["x"] -= 16
+
                 player["y"] -= 17
-                player["x"] += 32
-                player["y"] += 17
+                break
+
+            self.player_state["last_direction"] = key
 
         # Check for collisions with enemy entities
         for entity in self.world["entities"]:
@@ -209,10 +227,6 @@ class Game:
             has_collided = utils.determine_collision(player, entity)
 
             if has_collided:
-                self.game_state["over"] = True
-                self.game_state["died_to"] = entity["id"]
+                self.player_state["dead"] = True
+                self.player_state["died_to"] = entity["id"]
                 break
-
-        # Determine if the game is over after every move
-        # Theres probably a better way to do this
-        return self.game_state["over"]

@@ -28,6 +28,11 @@ def determine_collision(entity1, entity2):
 def is_too_close(new_entity, existing_entities, min_distance):
     for entity in existing_entities:
         if determine_collision(new_entity, entity):
+            print(
+                f"Entity {new_entity['name']}(x: {new_entity['x']}, y: {new_entity['y']}) is colliding with {entity['name']}(x: {entity['x']}, y: {entity['y']})",
+                flush=True,
+            )
+
             return True
 
         dx = new_entity["x"] - entity["x"]

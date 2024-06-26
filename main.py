@@ -3,7 +3,7 @@ from geometry_dashworld import Game
 
 def main():
     game = Game(
-        configuration={
+        {
             "debug": True,
             "dimensions": {"width": 120, "height": 50},
         }
@@ -13,10 +13,9 @@ def main():
 
     while True:
         game.draw_world()
+        game.move_player(input())
 
-        GAME_OVER = game.move_player(input())
-
-        if GAME_OVER:
+        if game.is_over():
             game.draw_world()
             break
 
