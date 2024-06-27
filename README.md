@@ -44,10 +44,10 @@ python main.py
 
 ![forsen](https://i.imgur.com/ElGyEtY.png)
 
-2. Clonar el repositorio
+2. Clonar el fork del repositorio
 
 ```bash
-git clone <link al repositorio>
+git clone <link al fork del repositorio>
 ```
 
 3. Crear una rama

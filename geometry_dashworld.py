@@ -16,11 +16,6 @@ class Game:
     def __init__(self, config=default_config):
         self.dimensions = config["dimensions"]
         self.debug = config["debug"]
-        self.entities = {
-            "player": player,
-            "spike": spike,
-            "post": post,
-        }
         self.world = {
             "map": [],
             "entities": [],
@@ -73,17 +68,17 @@ class Game:
 
     # Generate a player entity and append it to the entity list
     def generate_player(self):
-        player = self.entities["player"].copy()
+        new_player = player.copy()
         # Stick to the ground
-        player["y"] = self.dimensions["height"] - 7
-        player["id"] = self.get_entity_count()
+        new_player["y"] = self.dimensions["height"] - 7
+        new_player["id"] = self.get_entity_count()
 
-        self.world["entities"].append(player)
+        self.world["entities"].append(new_player)
 
     # Generate an enemy entity and append it to the entity list
     def generate_enemy(self):
         new_spike = utils.generate_entity_position(
-            post.copy(),
+            spike.copy(),
             self.world["entities"],
             self.dimensions["width"],
             self.dimensions["height"],
@@ -96,7 +91,7 @@ class Game:
     # Generate a post entity and append it to the entity list
     def generate_post(self):
         new_post = utils.generate_entity_position(
-            spike.copy(),
+            post.copy(),
             self.world["entities"],
             self.dimensions["width"],
             self.dimensions["height"],
@@ -229,4 +224,10 @@ class Game:
             if has_collided:
                 self.player_state["dead"] = True
                 self.player_state["died_to"] = entity["id"]
+
+                # Change the spike tiles to yellow to indicate the collision (as per requirement)
+                entity["body"] = list(
+                    map(lambda x: x.replace("0", "3"), entity["body"])
+                )
+
                 break
